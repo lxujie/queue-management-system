@@ -1,35 +1,125 @@
-@import './base.css';
+/* ========== GLOBAL STYLES ========== */
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #121212;
+  color: #e0e0e0;
+  padding: 20px;
+}
 
-#app {
-  max-width: 1280px;
+h1, h2 {
+  color: #ffffff;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+/* ========== APP CONTAINER ========== */
+.app-wrapper {
+  max-width: 600px;
   margin: 0 auto;
-  padding: 2rem;
-  font-weight: normal;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 40px 20px;
+  text-align: center;
 }
 
-a,
-.green {
+/* ========== LOGO ========== */
+.logo {
+  width: 100px;
+  margin: 0 auto 20px auto;
+  display: block;
+}
+
+/* ========== NAVIGATION ========== */
+nav {
+  font-size: 18px;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+nav a {
+  color: #42b883;
+  margin-right: 16px;
   text-decoration: none;
-  color: hsla(160, 100%, 37%, 1);
-  transition: 0.4s;
-  padding: 3px;
+  font-weight: 600;
 }
 
-@media (hover: hover) {
-  a:hover {
-    background-color: hsla(160, 100%, 37%, 0.2);
-  }
+nav a.router-link-exact-active {
+  font-weight: bold;
+  border-bottom: 2px solid #42b883;
 }
 
-@media (min-width: 1024px) {
-  body {
-    display: flex;
-    place-items: center;
-  }
+/* ========== FORMS ========== */
+form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 30px;
+}
 
-  #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 2rem;
-  }
+input {
+  width: 300px;
+  padding: 12px;
+  font-size: 16px;
+  border-radius: 8px;
+  border: none;
+  outline: none;
+}
+
+/* ========== BUTTONS ========== */
+button {
+  width: 150px;
+  padding: 12px;
+  background-color: #42b883;
+  color: white;
+  font-weight: bold;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #2fa36a;
+}
+
+/* ========== QUEUE LIST ========== */
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+li {
+  background-color: #222;
+  margin-bottom: 10px;
+  padding: 14px 20px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 16px;
+}
+
+/* ========== STATUS BADGES ========== */
+.status {
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 5px;
+  text-transform: uppercase;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+}
+
+.status.waiting {
+  background-color: #ffb74d;
+  color: black;
+}
+
+.status.served {
+  background-color: #81c784;
+  color: black;
 }
