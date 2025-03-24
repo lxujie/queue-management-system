@@ -14,22 +14,22 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { useQueueStore } from '@/stores/queueStore';
+import { useQueueStore } from '@/stores/queuestore';
 
-const queueStore = useQueueStore();
+const queuestore = useQueueStore();
 
 const name = ref('');
 
 function joinQueue() {
   if (name.value.trim()) {
-    queueStore.addToQueue(name.value);
+    queuestore.addToQueue(name.value);
     name.value = '';
   }
 }
 
 onMounted(() => {
-  queueStore.initQueueListener();
+  queuestore.initQueueListener();
 });
 
-const queueList = queueStore.queueList;
+const queueList = queuestore.queueList;
 </script>
