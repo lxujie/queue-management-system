@@ -1,40 +1,9 @@
-<!--<template>
-  <form @submit.prevent="handleSubmit">
-    <input v-model="name" placeholder="Your Name" required />
-    <input v-model="reason" placeholder="Reason for Visit" required />
-    <button type="submit">Join Queue</button>
-    <p v-if="success">✅ You're in the queue!</p>
-  </form>
-</template>
-
-<script setup lang="ts">
-import { ref } from 'vue';
-import { db } from '@/firebase';
-import { addDoc, collection, Timestamp } from 'firebase/firestore';
-
-const name = ref('');
-const reason = ref('');
-const success = ref(false);
-
-const handleSubmit = async () => {
-  await addDoc(collection(db, 'queue'), {
-    name: name.value,
-    reason: reason.value,
-    createdAt: Timestamp.now(),
-    status: 'waiting'
-  });
-  name.value = '';
-  reason.value = '';
-  success.value = true;
-};
-</script>-->
-
 <template>
   <form @submit.prevent="handleSubmit">
     <input v-model="name" placeholder="Your Name" required />
     <input v-model="reason" placeholder="Reason for Visit" required />
-    <input v-model="phone" placeholder="Phone Number (+65...)" required />
-    <button type="submit">Join Queue</button>
+    <input v-model="phone" placeholder="Phone Number (e.g. +6591234567)" required />
+    <button type="submit" @click="logButtonClick">Join Queue</button>
     <p v-if="success">✅ You're in the queue!</p>
   </form>
 </template>
@@ -44,69 +13,61 @@ const handleSubmit = async () => {
   import { db } from '@/firebase';
   import { addDoc, collection, Timestamp } from 'firebase/firestore';
 
-  // Form fields
   const name = ref('');
   const reason = ref('');
   const phone = ref('');
   const success = ref(false);
 
+  const logButtonClick = () => {
+    console.log('Join Queue button clicked');
+  };
+
   const handleSubmit = async () => {
-    if (!name.value || !reason.value || !phone.value) return;
+    console.log('handleSubmit triggered');
 
-    await addDoc(collection(db, 'queue'), {
-      name: name.value,
-      reason: reason.value,
-      phone: phone.value,
-      createdAt: Timestamp.now(),
-      status: 'waiting'
-    });
+    try {
+      console.log('Submitting to Firestore with:', {
+        name: name.value,
+        reason: reason.value,
+        phone: phone.value
+      });
 
-    // Reset form
-    name.value = '';
-    reason.value = '';
-    phone.value = '';
-    success.value = true;
+      const docRef = await addDoc(collection(db, 'queue'), {
+        name: name.value,
+        reason: reason.value,
+        phone: phone.value,
+        createdAt: Timestamp.now(),
+        status: 'waiting'
+      });
+
+      console.log('Document added to Firestore with ID:', docRef.id);
+
+      // *** Uncomment this block if you want a message when you press Join Queue *** //
+      //const response = await fetch('/.netlify/functions/notifyUser', {
+      //  method: 'POST',
+      //  headers: { 'Content-Type': 'application/json' },
+      //  body: JSON.stringify({
+      //    phoneNumber: phone.value,
+      //    docId: docRef.id,
+      //    type: 'join'
+      //  })
+      //});
+
+      //const resultText = await response.text();
+      //try {
+      //  const result = JSON.parse(resultText);
+      //  console.log('notifyUser response:', result);
+      //} catch {
+      //  console.warn('Response is not valid JSON:', resultText);
+      //}
+      // *** Uncomment this block if you want a message when you press Join Queue *** //
+
+      name.value = '';
+      reason.value = '';
+      phone.value = '';
+      success.value = true;
+    } catch (error) {
+      console.error('Error during form submission or notifyUser call:', error);
+    }
   };
 </script>
-
-<style scoped>
-  form {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    background-color: #1e1e1e;
-    padding: 24px;
-    border-radius: 12px;
-    max-width: 400px;
-    margin: 0 auto;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
-  }
-
-  input {
-    padding: 12px;
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
-  }
-
-  button {
-    padding: 12px;
-    background-color: #42b883;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-weight: bold;
-    cursor: pointer;
-  }
-
-    button:hover {
-      background-color: #2fa36a;
-    }
-
-  p {
-    color: #81c784;
-    font-weight: bold;
-    margin-top: 10px;
-    text-align: center;
-  }
-</style>
