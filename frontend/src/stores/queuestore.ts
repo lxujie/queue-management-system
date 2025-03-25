@@ -14,7 +14,7 @@ export const useQueueStore = defineStore('queue', {
   }),
   actions: {
     async initQueueListener() {
-      const queueRef = collection(db, 'queues');
+      const queueRef = collection(db, 'queue');
       onSnapshot(queueRef, (snapshot) => {
         this.queueList = snapshot.docs.map((doc) => ({
           id: doc.id,
@@ -23,7 +23,7 @@ export const useQueueStore = defineStore('queue', {
       });
     },
     async addToQueue(name: string) {
-      const queueRef = collection(db, 'queues');
+      const queueRef = collection(db, 'queue');
       await addDoc(queueRef, {
         name,
         status: 'waiting',
