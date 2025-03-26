@@ -5,6 +5,7 @@
     <input v-model="phone" placeholder="Phone Number (e.g. +6591234567)" required />
     <button type="submit" @click="logButtonClick">Join Queue</button>
     <p v-if="success">✅ You're in the queue!</p>
+    <p v-if="error" style="color: red">{{ error }}</p>
   </form>
 </template>
 
@@ -17,6 +18,7 @@
   const reason = ref('');
   const phone = ref('');
   const success = ref(false);
+  const error = ref('');
 
   const logButtonClick = () => {
     console.log('Join Queue button clicked');
@@ -24,6 +26,15 @@
 
   const handleSubmit = async () => {
     console.log('handleSubmit triggered');
+
+    // Validate Singapore number format
+    if (!phone.value.startsWith('+65')) {
+      error.value = 'Phone number must start with +65 (Singapore format)';
+      console.warn('Invalid phone number:', phone.value);
+      return;
+    }
+
+    error.value = '';
 
     try {
       console.log('Submitting to Firestore with:', {
