@@ -4,8 +4,6 @@ import { RouterLink, RouterView } from 'vue-router'
 
 <template>
   <div class="app-wrapper">
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="100" height="100" />
-
     <nav>
       <RouterLink to="/">Customer</RouterLink> |
       <RouterLink to="/admin">Admin</RouterLink>

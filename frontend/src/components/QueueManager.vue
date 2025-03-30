@@ -14,7 +14,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { useQueueStore } from '@/stores/queuestore';
+import { useQueueStore } from '@/stores/queueStore';
 
 const queuestore = useQueueStore();
 
