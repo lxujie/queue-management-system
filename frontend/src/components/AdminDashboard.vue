@@ -1,5 +1,6 @@
 <template>
   <div>
+    <h2>Welcome to Admin Dashboard</h2>
     <!-- Display empty message if no queue items -->
     <div v-if="queue.length === 0" class="empty-message">
       Currently no one in queue.
@@ -23,10 +24,14 @@
         </div>
       </li>
     </ul>
+    <button @click="signOutUser">Sign Out</button>
   </div>
 </template>
 
 <script setup lang="ts">
+import { getAuth, signOut } from 'firebase/auth'
+import { useRouter } from 'vue-router'
+
 import { ref, onMounted } from 'vue';
 import { db } from '@/firebase';
 import {
@@ -39,6 +44,8 @@ import {
   deleteDoc
 } from 'firebase/firestore';
 
+const router = useRouter()
+const auth = getAuth()
 const queue = ref<any[]>([]);
 
 // Realtime Firestore listener
@@ -108,6 +115,14 @@ const removeEntry = async (id: string) => {
   await deleteDoc(doc(db, 'queue', id));
   console.log('User removed');
 };
+
+function signOutUser() {
+  signOut(auth).then(() => {
+    router.push('/admin') // Go back to Sign In page
+  }).catch((error) => {
+    console.error('Sign out error:', error)
+  })
+}
 </script>
 
 <style scoped>
