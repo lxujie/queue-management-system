@@ -1,5 +1,16 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
+import { onMounted, ref } from 'vue'
+import { getAuth, onAuthStateChanged } from 'firebase/auth'
+
+const isLoggedIn = ref(false)
+onMounted(() => {
+  const auth = getAuth()
+  onAuthStateChanged(auth, (user) => {
+    isLoggedIn.value = !!user
+    console.log('User is signed in?', isLoggedIn.value)
+  })
+})
 </script>
 
 <template>
