@@ -142,7 +142,7 @@ button:hover {
 
 .queue-count {
   font-size: 18px;
-  color: #333;
+  color: #FFF;
   text-align: center;
 }
 
