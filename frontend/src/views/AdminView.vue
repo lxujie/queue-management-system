@@ -1,23 +1,23 @@
 <template>
   <div>
-    <AdminDashboard v-if="isSignedIn" />
-    <QueueStatus v-if="isSignedIn"/>
+    <AdminDashboard v-if="auth.isSignedIn" />
     <SignIn v-else />
   </div>
 </template>
 
-<script setup>
-import { ref, onMounted } from 'vue'
+<script setup lang="ts">
+import { onMounted } from 'vue'
 import { getAuth, onAuthStateChanged } from 'firebase/auth'
 import SignIn from '../components/SignIn.vue'
 import AdminDashboard from '../components/AdminDashboard.vue'
-import QueueStatus from '../components/QueueStatus.vue';
+import { useAuthStore } from '../stores/authStore'  
 
-const isSignedIn = ref(false)
+const auth = useAuthStore() 
+
 onMounted(() => {
-  const auth = getAuth()
-  onAuthStateChanged(auth, (user) => {
-    isSignedIn.value = !!user
+  const firebaseAuth = getAuth()
+  onAuthStateChanged(firebaseAuth, (user) => {
+    auth.isSignedIn = !!user 
   })
 })
 </script>
