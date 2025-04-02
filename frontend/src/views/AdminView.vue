@@ -19,7 +19,7 @@ onMounted(() => {
   const firebaseAuth = getAuth()
   onAuthStateChanged(firebaseAuth, (user) => {
     auth.isSignedIn = !!user
-    auth.isAuthChecked = true // ✅ mark auth as checked
+    auth.isAuthChecked = true 
   })
 })
 </script>

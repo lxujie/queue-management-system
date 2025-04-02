@@ -2,11 +2,12 @@
   <div>
     <h2>Queue Manager</h2>
     <input v-model="name" placeholder="Enter name" />
+    <input v-model="phone" placeholder="Enter phone number" />
     <button @click="joinQueue">Join Queue</button>
 
     <ul>
       <li v-for="item in queueList" :key="item.id">
-        {{ item.name }} - {{ item.status }}
+        {{ item.name }} - {{ item.phone }} - {{ item.status }}
       </li>
     </ul>
   </div>
@@ -16,20 +17,22 @@
 import { ref, onMounted } from 'vue';
 import { useQueueStore } from '@/stores/queuestore';
 
-const queuestore = useQueueStore();
+const queueStore = useQueueStore();
 
 const name = ref('');
+const phone = ref('');
 
-function joinQueue() {
-  if (name.value.trim()) {
-    queuestore.addToQueue(name.value);
+async function joinQueue() {
+  if (name.value.trim() && phone.value.trim()) {
+    await queueStore.addToQueue(name.value, phone.value);
     name.value = '';
+    phone.value = '';
   }
 }
 
 onMounted(() => {
-  queuestore.initQueueListener();
+  queueStore.initQueueListener();
 });
 
-const queueList = queuestore.queueList;
+const queueList = queueStore.queueList;
 </script>
