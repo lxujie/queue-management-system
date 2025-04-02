@@ -17,6 +17,9 @@
         </div>
         <div class="action-buttons">
           <!-- Pass full entry object -->
+          <button v-if="entry.status === 'waiting'" @click="notifyReady(entry)">
+            📲 Ready to Serve
+          </button>
           <button v-if="entry.status !== 'served'" @click="markServed(entry)">
             ✔ Mark Served
           </button>
@@ -59,34 +62,24 @@ onMounted(() => {
   });
 });
 
-const markServed = async (entry: any) => {
+const notifyReady = async (entry: any) => {
   try {
-    console.log('User served:', entry);
-
-    if (!entry || !entry.id) {
-      console.error('Invalid entry passed to markServed:', entry);
+    if (!entry || !entry.id || !entry.phone) {
+      console.warn('Missing entry or phone number');
       return;
     }
 
-    const id = entry.id;
-    await updateDoc(doc(db, 'queue', id), { status: 'served' });
-    console.log('Status updated in Firestore for ID:', id);
-
-    const phone = entry.phone;
-    if (!phone) {
-      console.warn('No phone number found. Skipping SMS.');
-      return;
-    }
-    if (!phone.startsWith('+')) {
-      console.error('Invalid phone number format (must start with +):', phone);
+    if (!entry.phone.startsWith('+')) {
+      console.error('Phone number must start with +');
       return;
     }
 
     const payload = {
-      phoneNumber: phone,
-      message: `Hi ${entry.name}, it's your turn now! Please proceed to the counter.`,
+      phoneNumber: entry.phone,
+      message: `Hi ${entry.name}, you're next! Please head over to the counter.`,
     };
-    console.log('Sending payload to /notifyUser:', payload);
+
+    console.log('Sending ready-to-serve SMS:', payload);
 
     const response = await fetch('/.netlify/functions/notifyUser', {
       method: 'POST',
@@ -94,18 +87,23 @@ const markServed = async (entry: any) => {
       body: JSON.stringify(payload),
     });
 
-    const text = await response.text();
-    let result;
+    const resultText = await response.text();
     try {
-      result = JSON.parse(text);
+      const result = JSON.parse(resultText);
+      console.log('Twilio SMS sent:', result);
     } catch {
-      result = { raw: text };
+      console.warn('SMS response was not JSON:', resultText);
     }
-    if (!response.ok) {
-      console.error('Failed to send SMS:', result);
-      return;
-    }
-    console.log('Twilio SMS sent successfully:', result);
+  } catch (err) {
+    console.error('Error in notifyReady:', err);
+  }
+};
+
+const markServed = async (entry: any) => {
+  try {
+    if (!entry || !entry.id) return;
+    await updateDoc(doc(db, 'queue', entry.id), { status: 'served' });
+    console.log('Marked as served:', entry.id);
   } catch (err) {
     console.error('Error in markServed:', err);
   }
