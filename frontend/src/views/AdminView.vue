@@ -1,6 +1,7 @@
 <template>
   <div>
     <AdminDashboard v-if="isSignedIn" />
+    <QueueStatus v-if="isSignedIn"/>
     <SignIn v-else />
   </div>
 </template>
@@ -10,6 +11,7 @@ import { ref, onMounted } from 'vue'
 import { getAuth, onAuthStateChanged } from 'firebase/auth'
 import SignIn from '../components/SignIn.vue'
 import AdminDashboard from '../components/AdminDashboard.vue'
+import QueueStatus from '../components/QueueStatus.vue';
 
 const isSignedIn = ref(false)
 onMounted(() => {
