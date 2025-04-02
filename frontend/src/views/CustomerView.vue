@@ -2,8 +2,8 @@
   <div>
     <h1>Customer Check-In</h1>
     <CheckInForm />
-    <QueueStatus v-if="auth.isSignedIn" />
     <PhoneQueueStatus />
+    <QueueStatus v-if="auth.isSignedIn" />
   </div>
 </template>
 

@@ -1,3 +1,4 @@
+<!-- QueueManager.vue -->
 <template>
   <div>
     <h2>Queue Manager</h2>
@@ -24,6 +25,7 @@ const phone = ref('');
 
 async function joinQueue() {
   if (name.value.trim() && phone.value.trim()) {
+    // This function should be updated in your queuestore to also add createdAt.
     await queueStore.addToQueue(name.value, phone.value);
     name.value = '';
     phone.value = '';
