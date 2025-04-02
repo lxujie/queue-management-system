@@ -2,17 +2,19 @@
 import { RouterLink, RouterView } from 'vue-router'
 import { onMounted, ref } from 'vue'
 import { getAuth, onAuthStateChanged } from 'firebase/auth'
+import { useAuthStore } from './stores/authstore'
 
-const isLoggedIn = ref(false)
+const authStore = useAuthStore()
+
 onMounted(() => {
   const auth = getAuth()
   onAuthStateChanged(auth, (user) => {
-    isLoggedIn.value = !!user
-    console.log('User is signed in?', isLoggedIn.value)
+    authStore.isSignedIn = !!user
+    authStore.isAuthChecked = true
   })
 })
-</script>
 
+</script>
 <template>
   <div class="app-wrapper">
     <nav>

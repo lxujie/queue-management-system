@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/lxujie/queue-management-system/issues"
   },
-  "homepage": "https://github.com/lxujie/queue-management-system#readme"
+  "homepage": "https://github.com/lxujie/queue-management-system#readme",
+  "dependencies": {
+    "twilio": "^5.5.1"
+  }
 }

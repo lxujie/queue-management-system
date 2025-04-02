@@ -1,42 +1,53 @@
 <template>
-    <div class="sign-in-form">
-      <h2>Admin Sign In</h2>
-      <form @submit.prevent="signIn">
-        <label>Email:</label>
-        <input v-model="email" type="email" required />
-  
-        <label>Password:</label>
-        <input v-model="password" type="password" required />
-  
-        <button type="submit">Sign In</button>
-        <p v-if="errorMessage" style="color: red;">{{ errorMessage }}</p>
-      </form>
-    </div>
-  </template>
-  
-  <script setup>
-  import { ref } from 'vue'
-  import { getAuth, signInWithEmailAndPassword } from 'firebase/auth'
-  import { useRouter } from 'vue-router'
-  
-  const email = ref('')
-  const password = ref('')
-  const errorMessage = ref('')
-  
-  const auth = getAuth()
-  const router = useRouter()
-  
-  async function signIn() {
-    errorMessage.value = ''
-    try {
-      await signInWithEmailAndPassword(auth, email.value, password.value)
-      router.push('/admin/dashboard')
-    } catch (error) {
-        handleError(error)
-    }
-  }
+  <div class="sign-in-form">
+    <h2>Admin Sign In</h2>
+    <form @submit.prevent="signIn">
+      <label>Email:</label>
+      <input v-model="email" type="email" required />
 
-  function handleError(error) {
+      <label>Password:</label>
+      <input v-model="password" type="password" required />
+
+      <button type="submit">Sign In</button>
+      <p v-if="errorMessage" style="color: red;">{{ errorMessage }}</p>
+    </form>
+  </div>
+</template>
+
+<script setup>
+import { ref } from 'vue'
+import { 
+  getAuth, 
+  signInWithEmailAndPassword, 
+  setPersistence, 
+  browserSessionPersistence 
+} from 'firebase/auth'
+import { useRouter } from 'vue-router'
+
+const email = ref('')
+const password = ref('')
+const errorMessage = ref('')
+
+const auth = getAuth()
+const router = useRouter()
+
+async function signIn() {
+  errorMessage.value = ''
+  try {
+    // Set session persistence so that the authentication state is valid only for this tab session
+    await setPersistence(auth, browserSessionPersistence)
+    
+    // Sign in the user with the provided email and password
+    await signInWithEmailAndPassword(auth, email.value, password.value)
+    
+    // Redirect to the admin dashboard upon successful sign-in
+    router.push('/admin/dashboard')
+  } catch (error) {
+    handleError(error)
+  }
+}
+
+function handleError(error) {
   switch (error.code) {
     case 'auth/user-not-found':
       errorMessage.value = 'No account found with this email.'
@@ -54,4 +65,4 @@
       errorMessage.value = 'Sign-in failed. Please check your credentials.'
   }
 }
-  </script>
+</script>

@@ -8,7 +8,9 @@
         placeholder="Phone Number (e.g. +6591234567)"
         required
       />
-      <button type="submit" @click="logButtonClick">Join Queue</button>
+      <button type="submit" @click="logButtonClick" :disabled="isSubmitting">
+        Join Queue
+      </button>
       <p v-if="success">✅ You're in the queue!</p>
       <p v-if="error" class="error">{{ error }}</p>
     </form>
@@ -27,7 +29,8 @@ import {
   onSnapshot,
   query,
   where,
-  Timestamp
+  Timestamp,
+  getDocs
 } from 'firebase/firestore';
 
 const name = ref('');
@@ -36,24 +39,42 @@ const phone = ref('');
 const success = ref(false);
 const error = ref('');
 const queueCount = ref(0);
+const isSubmitting = ref(false);
 
 const logButtonClick = () => {
   console.log('Join Queue button clicked');
 };
 
 const handleSubmit = async () => {
+  if (isSubmitting.value) return;
+  isSubmitting.value = true;
+
   console.log('handleSubmit triggered');
 
   // Validate Singapore number format
-  if (!phone.value.startsWith('+65')) {
-    error.value = 'Phone number must start with +65 (Singapore format)';
-    console.warn('Invalid phone number:', phone.value);
-    return;
-  }
+  const singaporePhoneRegex = /^\+65\d{8}$/;
+if (!singaporePhoneRegex.test(phone.value)) {
+  error.value = 'Phone number must be in the format +65XXXXXXXX (8 digits)';
+  console.warn('Invalid phone number:', phone.value);
+  isSubmitting.value = false;
+  return;
+}
+
 
   error.value = '';
-
   try {
+    // Check if this phone number already exists in the database
+    const phoneQuery = query(
+      collection(db, 'queue'),
+      where('phone', '==', phone.value)
+    );
+    const querySnapshot = await getDocs(phoneQuery);
+    if (querySnapshot.size > 0) {
+      error.value = 'This phone number has already joined the queue.';
+      isSubmitting.value = false;
+      return;
+    }
+
     console.log('Submitting to Firestore with:', {
       name: name.value,
       reason: reason.value,
@@ -70,7 +91,7 @@ const handleSubmit = async () => {
 
     console.log('Document added to Firestore with ID:', docRef.id);
 
-    // Uncomment below if you want to notify via Twilio on join
+    // Optionally notify via Twilio on join
     const response = await fetch('/.netlify/functions/notifyUser', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -89,19 +110,25 @@ const handleSubmit = async () => {
       console.warn('Response is not valid JSON:', resultText);
     }
 
-    // Clear the form and show success message
+    // Clear the form and show success message immediately
     name.value = '';
     reason.value = '';
     phone.value = '';
     success.value = true;
   } catch (err) {
     console.error('Error during form submission or notifyUser call:', err);
+    error.value = 'An error occurred during submission. Please try again.';
+  } finally {
+    isSubmitting.value = false;
   }
 };
 
 onMounted(() => {
   // Listen to queue entries with status 'waiting' to update the count
-  const q = query(collection(db, 'queue'), where('status', '==', 'waiting'));
+  const q = query(
+    collection(db, 'queue'),
+    where('status', '==', 'waiting')
+  );
   onSnapshot(q, (snapshot) => {
     queueCount.value = snapshot.size;
   });
@@ -136,7 +163,12 @@ button {
   cursor: pointer;
 }
 
-button:hover {
+button:disabled {
+  background-color: #a0a0a0;
+  cursor: not-allowed;
+}
+
+button:hover:enabled {
   background-color: #2fa36a;
 }
 
