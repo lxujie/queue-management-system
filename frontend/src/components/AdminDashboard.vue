@@ -17,9 +17,16 @@
         </div>
         <div class="action-buttons">
           <!-- Pass full entry object -->
-          <button v-if="entry.status === 'waiting'" @click="notifyReady(entry)">
-            📲 Ready to Serve
-          </button>
+          <div v-if="entry.status === 'waiting'" class="ready-group">
+            <button 
+              :disabled="readyCooldowns[entry.id]"
+              @click="notifyReady(entry)">
+              📲 Ready to Serve
+            </button>
+            <span v-if="readyNotifications[entry.id]" class="notification">
+              Message sent!
+            </span>
+          </div>
           <button v-if="entry.status !== 'served'" @click="markServed(entry)">
             ✔ Mark Served
           </button>
@@ -34,7 +41,6 @@
 <script setup lang="ts">
 import { getAuth, signOut } from 'firebase/auth'
 import { useRouter } from 'vue-router'
-
 import { ref, onMounted } from 'vue';
 import { db } from '@/firebase';
 import {
@@ -51,6 +57,10 @@ const router = useRouter()
 const auth = getAuth()
 const queue = ref<any[]>([]);
 
+// New reactive objects to track cooldown state and notifications for each entry
+const readyCooldowns = ref<Record<string, boolean>>({});
+const readyNotifications = ref<Record<string, boolean>>({});
+
 // Realtime Firestore listener
 onMounted(() => {
   const q = query(collection(db, 'queue'), orderBy('createdAt'));
@@ -63,6 +73,9 @@ onMounted(() => {
 });
 
 const notifyReady = async (entry: any) => {
+  // If button is on cooldown, do nothing.
+  if (readyCooldowns.value[entry.id]) return;
+
   try {
     if (!entry || !entry.id || !entry.phone) {
       console.warn('Missing entry or phone number');
@@ -94,6 +107,13 @@ const notifyReady = async (entry: any) => {
     } catch {
       console.warn('SMS response was not JSON:', resultText);
     }
+    // Show "Message sent!" notification and start a 10s cooldown
+    readyNotifications.value[entry.id] = true;
+    readyCooldowns.value[entry.id] = true;
+    setTimeout(() => {
+      readyNotifications.value[entry.id] = false;
+      readyCooldowns.value[entry.id] = false;
+    }, 10000);
   } catch (err) {
     console.error('Error in notifyReady:', err);
   }
@@ -159,6 +179,17 @@ ul {
   flex-wrap: wrap;
 }
 
+.ready-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.notification {
+  color: #81c784;
+  font-weight: bold;
+}
+
 .status {
   font-size: 12px;
   padding: 6px 10px;
@@ -189,7 +220,12 @@ button {
   transition: background-color 0.2s;
 }
 
-button:hover {
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+button:hover:not(:disabled) {
   background-color: #2fa36a;
 }
 
