@@ -27,11 +27,22 @@
   
   const queueStore = useQueueStore();
   
-  // Ensure the queue listener is running so queueList stays updated.
+  /**
+  * Starts the queue listener on mount to ensure queue data stays updated in the store.
+  */
   onMounted(() => {
     queueStore.initQueueListener();
   });
-  
+
+  /**
+  * Checks the queue status based on the entered phone number.
+  * - Filters the queue for users with 'waiting' status.
+  * - Calculates the user's position in the queue.
+  * - Estimates waiting time based on:
+  *   - First person gets 5 minutes
+  *   - Second person may wait less or default to 3 minutes if overdue
+  *   - Others add 5 mins per person beyond the second
+  */
   const checkQueue = () => {
     // Reset the display state.
     checked.value = false;
@@ -97,4 +108,3 @@
     margin-top: 1rem;
   }
   </style>
-  

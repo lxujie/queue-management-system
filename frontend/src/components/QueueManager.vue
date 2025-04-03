@@ -23,6 +23,11 @@ const queueStore = useQueueStore();
 const name = ref('');
 const phone = ref('');
 
+/**
+* Adds a new person to the queue using the queue store.
+* - Requires non-empty name and phone.
+* - Resets the form inputs after submission.
+*/
 async function joinQueue() {
   if (name.value.trim() && phone.value.trim()) {
     // This function should be updated in your queuestore to also add createdAt.
@@ -32,6 +37,10 @@ async function joinQueue() {
   }
 }
 
+/**
+* Starts the queue listener when the component is mounted,
+* so that the displayed list remains reactive and real-time.
+*/
 onMounted(() => {
   queueStore.initQueueListener();
 });
